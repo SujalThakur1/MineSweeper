@@ -19,7 +19,7 @@ namespace MineSweeper
         private SoundPlayer OnClickSound;
         private Panel pnlMenu = new Panel();
         private Panel pnlDifficultyLevel = new Panel();
-        private Panel pnlEasyLevel = new Panel();
+        private Panel pnlGameStart = new Panel();
         private Panel pnlHighestScore = new Panel();
         public Form1()
         {
@@ -36,12 +36,11 @@ namespace MineSweeper
             Panel_Menu(ref pnlMenu);
             Panel_difficultyLevel(ref pnlDifficultyLevel);
             Panel_HighestScore(ref pnlHighestScore);
-            Panel_easyGame(ref pnlEasyLevel);
 
             Controls.Add(pnlHighestScore);
             Controls.Add(pnlDifficultyLevel);
             Controls.Add(pnlMenu);
-            Controls.Add(pnlEasyLevel);
+            Controls.Add(pnlGameStart);
         }
 
         private void Panel_Menu(ref Panel pnl)
@@ -150,28 +149,45 @@ namespace MineSweeper
             pnl.Visible = false;
         }
 
-        private void Panel_easyGame(ref Panel pnl)
+        private void Panel_GameStart(ref Panel pnl,int Row,int Column,
+            int btnSize = 50,int BoardWidth = 500,int BoardHeight = 400,int Position = 50
+            )
         {
             //setting panel
             pnl.Size = this.ClientSize;
             pnl.BackColor = Color.Transparent;
             pnl.Visible = false;
+            TableLayoutPanel tableLayoutPanel = pnl.Controls.OfType<TableLayoutPanel>().FirstOrDefault();
+
+            if (tableLayoutPanel != null)
+            {
+                // Remove the tableLayoutPanel from the Controls collection of the myPanel
+                pnl.Controls.Remove(tableLayoutPanel);
+            }
+
+            Button btnBackButton2 = new Button();
+            btnBackButton2.SetBounds(20, 10, 80, 70);
+            btnBackButton2.Image = new Bitmap(Properties.Resources.BackButton, new Size(90, 70));
+            btnBackButton2.Click += new EventHandler(this.btnBackButton2Event_Click);
+            setButton(btnBackButton2);
+            pnl.Controls.Add(btnBackButton2);
+            
 
             //setting GameBoard
             TableLayoutPanel pnlGameBoard = new TableLayoutPanel();
-            pnlGameBoard.Size = new Size(500, 400);
-            pnlGameBoard.Location = new System.Drawing.Point((pnl.Width - pnlGameBoard.Width) / 2,
-                (pnl.Height + 40 - pnlGameBoard.Height) / 2);
+            pnlGameBoard.Size = new Size(BoardWidth, BoardHeight);
+            pnlGameBoard.Location = new Point((pnl.Width - pnlGameBoard.Width) / 2,
+                (pnl.Height + Position - pnlGameBoard.Height) / 2);
             pnlGameBoard.BackColor = Color.FromArgb(150, Color.AliceBlue);
 
-            pnlGameBoard.RowCount = 8;
-            pnlGameBoard.ColumnCount = 10;
-            for (int i = 0; i < 10; i++)
+            pnlGameBoard.RowCount = Row;
+            pnlGameBoard.ColumnCount = Column;
+            for (int i = 0; i < Column; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < Row; j++)
                 {
                     Button btnTile = new Button();
-                    btnTile.Size = new Size(50, 50);
+                    btnTile.Size = new Size(btnSize, btnSize);
                     btnTile.Margin = new Padding(0);
                     btnTile.FlatStyle = FlatStyle.Flat;
                     btnTile.Image = Properties.Resources.ButtonBackGround;
@@ -180,6 +196,7 @@ namespace MineSweeper
                 }
             }
             pnl.Controls.Add(pnlGameBoard);
+            pnl.Visible = true;
         }
 
         private void btnTileEvent_Click(object sender, EventArgs e)
@@ -358,6 +375,7 @@ namespace MineSweeper
         private void btnBackButton2Event_Click(object sender, EventArgs e)
         {
             PlayButtonClickSound();
+            pnlGameStart.Visible = false;
             pnlHighestScore.Visible = false;
             pnlMenu.Visible = true;
         }
@@ -399,20 +417,25 @@ namespace MineSweeper
         private void btnHardLevelEvent_Click(object sender, EventArgs e)
         {
             PlayButtonClickSound();
-
+            pnlDifficultyLevel.Visible = false;
+            Panel_GameStart(ref pnlGameStart, 15, 24,30,720,450,80);
+            pnlGameStart.Visible = true;
         }
 
         private void btnMediumLevelEvent_Click(object sender, EventArgs e)
         {
             PlayButtonClickSound();
-
+            pnlDifficultyLevel.Visible = false;
+            Panel_GameStart(ref pnlGameStart, 12, 18,36,648,432,80);
+            pnlGameStart.Visible = true;
         }
 
         private void btnEasyLevelEvent_Click(object sender, EventArgs e)
         {
             PlayButtonClickSound();
             pnlDifficultyLevel.Visible = false;
-            pnlEasyLevel.Visible = true;
+            Panel_GameStart(ref pnlGameStart,8,10);
+            pnlGameStart.Visible = true;
         }
 
         private void Form1_Load(object sender, EventArgs e)
