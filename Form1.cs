@@ -21,6 +21,9 @@ namespace MineSweeper
         private Panel pnlDifficultyLevel = new Panel();
         private Panel pnlGameStart = new Panel();
         private Panel pnlHighestScore = new Panel();
+        private Button[,] btnEsyLvlTiles = new Button[10,8];
+        private Button[,] btnMediumLvlTiles = new Button[18,12];
+        private Button[,] btnHardLvlTiles = new Button[24, 15];
         public Form1()
         {
             InitializeComponent();
@@ -149,8 +152,9 @@ namespace MineSweeper
             pnl.Visible = false;
         }
 
-        private void Panel_GameStart(ref Panel pnl,int Row,int Column,
-            int btnSize = 50,int BoardWidth = 500,int BoardHeight = 400,int Position = 50
+        private void Panel_GameStart(ref Panel pnl, Button[,] btnTiles ,
+            int btnSize = 50,int BoardWidth = 500,int BoardHeight = 400,int Position = 50,
+            int TotalNumberOfBoom = 10
             )
         {
             //setting panel
@@ -180,29 +184,197 @@ namespace MineSweeper
                 (pnl.Height + Position - pnlGameBoard.Height) / 2);
             pnlGameBoard.BackColor = Color.FromArgb(150, Color.AliceBlue);
 
+            int Row = btnTiles.GetLength(1);
+            int Column = btnTiles.GetLength(0);
+
+            for (int i = 0; i < Column; i++)
+            {
+                for (int j = 0; j < Row; j++)
+                {
+                    btnTiles[i, j] = new Button();
+
+                }
+            }
+
+            //unique position for boom
+            HashSet<Tuple<int, int>> uniquePositions = new HashSet<Tuple<int, int>>();
+            Random random = new Random();
+            for (int i = 0; i < TotalNumberOfBoom; i++)
+            {
+                int randomRow, randomCol;
+
+                // Generate unique random position
+                do
+                {
+                    randomRow = random.Next(Row - 1);
+                    randomCol = random.Next(Column - 1);
+                    btnTiles[randomCol, randomRow] = new Button();
+                    btnTiles[randomCol, randomRow].Name = "0";
+                } while (!uniquePositions.Add(new Tuple<int, int>(randomRow, randomCol)));
+            }
+
+
+            
             pnlGameBoard.RowCount = Row;
             pnlGameBoard.ColumnCount = Column;
             for (int i = 0; i < Column; i++)
             {
                 for (int j = 0; j < Row; j++)
                 {
-                    Button btnTile = new Button();
-                    btnTile.Size = new Size(btnSize, btnSize);
-                    btnTile.Margin = new Padding(0);
-                    btnTile.FlatStyle = FlatStyle.Flat;
-                    btnTile.Image = Properties.Resources.ButtonBackGround;
-                    btnTile.Click += new EventHandler(this.btnTileEvent_Click);
-                    pnlGameBoard.Controls.Add(btnTile, i, j);
+                    if (!btnTiles[i, j].Name.StartsWith("0"))
+                    {
+                        int x, y, boomNearBy = 0;
+                        for (int k = -1; k < 2; k++)
+                        {
+                            for (int l = -1; l < 2; l++)
+                            {
+                                if (i + k < 0 || i + k > Column - 1 || j + l < 0 || j + l > Row - 1)
+                                {
+                                    continue;
+                                }
+                                if (btnTiles[i + k, j + l].Name.StartsWith("0"))
+                                {
+                                    boomNearBy++;
+                                }
+                            }
+                        }
+
+                        if (boomNearBy != 0)
+                        {
+                            btnTiles[i, j].Name = boomNearBy + " " + i + " " + j ;
+                        }
+                        else
+                        {
+                            btnTiles[i, j].Name = "Safe " + i + " " + j;
+                        }
+                    }
+                    else
+                    {
+                        btnTiles[i, j].Name += " " + i + " " + j;
+                    }
+
+                    btnTiles[i, j].Size = new Size(btnSize, btnSize);
+                    btnTiles[i, j].Margin = new Padding(0);
+                    btnTiles[i, j].FlatStyle = FlatStyle.Flat;
+                    btnTiles[i, j].Image = Properties.Resources.ButtonBackGround;
+                    btnTiles[i, j].Click += (sender, e) => btnTileEvent_Click(sender, e, btnTiles);
+                    btnTiles[i, j].MouseUp += new MouseEventHandler(btnTileEvent_MouseUp);
+                    pnlGameBoard.Controls.Add(btnTiles[i, j], i, j);
                 }
             }
             pnl.Controls.Add(pnlGameBoard);
             pnl.Visible = true;
         }
 
-        private void btnTileEvent_Click(object sender, EventArgs e)
+        private void btnTileEvent_MouseUp(object sender, MouseEventArgs e)
+        {
+            if(e.Button == MouseButtons.Right)
+            {
+                Button btnTile = (Button)sender;
+                if (btnTile.Image == Properties.Resources.ButtonBackGround)
+                {
+                    btnTile.Image = Properties.Resources.BackButton;
+                }
+                else
+                {
+                    btnTile.Image = Properties.Resources.ButtonBackGround;
+                }
+            }
+        }
+
+        private void btnHardLevelEvent_Click(object sender, EventArgs e)
+        {
+            PlayButtonClickSound();
+            pnlDifficultyLevel.Visible = false;
+            Panel_GameStart(ref pnlGameStart, btnHardLvlTiles,30,720,450,80,99);
+            pnlGameStart.Visible = true;
+        }
+
+        private void btnMediumLevelEvent_Click(object sender, EventArgs e)
+        {
+            PlayButtonClickSound();
+            pnlDifficultyLevel.Visible = false;
+            Panel_GameStart(ref pnlGameStart, btnMediumLvlTiles,36,648,432,80,40);
+            pnlGameStart.Visible = true;
+        }
+
+        private void btnEasyLevelEvent_Click(object sender, EventArgs e)
+        {
+            PlayButtonClickSound();
+            pnlDifficultyLevel.Visible = false;
+            Panel_GameStart(ref pnlGameStart,btnEsyLvlTiles);
+            pnlGameStart.Visible = true;
+        }
+        private void btnTileEvent_Click(object sender, EventArgs e,Button [,] btnTiles)
         {
             Button btnTile = (Button)sender;
             btnTile.Image = Properties.Resources.BackGround;
+            Bitmap bmp = new Bitmap(btnTile.Image);
+            String name = btnTile.Name;
+            String[] parts = name.Split(' ');
+            int col = int.Parse(parts[1]);
+            int row = int.Parse(parts[2]);
+
+
+            // Recursive method to reveal safe tiles
+            void RevealSafeTiles(int c, int r)
+            {
+                // Base case: check bounds
+                if (c < 0 || c >= btnTiles.GetLength(0) || r < 0 || r >= btnTiles.GetLength(1))
+                {
+                    return;
+                }
+
+                if (!btnTiles[c, r].Enabled)
+                {
+                    return;
+                }
+
+                btnTiles[c, r].Image = Properties.Resources.BackGround;
+                Bitmap bm = new Bitmap(btnTiles[c, r].Image);
+                // Create a graphics object from the bitmap
+                using (Graphics g = Graphics.FromImage(bm))
+                {
+                    // Set font and brush for the text
+                    Font font = new Font("Arial", 15, FontStyle.Bold);
+                    Brush brush = Brushes.Black;
+                    float x = (bm.Width - g.MeasureString("1", font).Width) / 2;
+                    float y = (bm.Height - g.MeasureString("1", font).Height) / 2;
+                    string naame = btnTiles[c, r].Name;
+                    string []naaame = naame.Split(' ');
+                    if (naaame[0] == "Safe")
+                    {
+                        naaame[0] = " ";
+                    }
+
+                    g.DrawString(naaame[0], font, brush, new PointF(x, y));
+                }
+                btnTiles[c, r].Image = bm;
+                btnTiles[c, r].Enabled = false;
+                btnTiles[c, r].BackColor = Color.Pink;
+                btnTiles[c, r].FlatStyle = FlatStyle.Flat;
+                if (parts[0] == "Safe")
+                {
+                    // Recursive call for neighboring tiles
+                    for (int i = -1; i < 2; i++)
+                    {
+                        for (int j = -1; j < 2; j++)
+                        {
+                            string n = btnTiles[c, r].Name;
+                            string[] p = n.Split(' ');
+                            if (p[0].Contains("Safe"))
+                            {
+                                RevealSafeTiles(c + i, r + j);
+                            }
+                        }
+                    }
+                }
+                
+
+            }
+
+            RevealSafeTiles(col, row);
+
         }
 
         private void Panel_HighestScore(ref Panel pnl)
@@ -414,30 +586,6 @@ namespace MineSweeper
             pnlMenu.Visible = true;
         }
 
-        private void btnHardLevelEvent_Click(object sender, EventArgs e)
-        {
-            PlayButtonClickSound();
-            pnlDifficultyLevel.Visible = false;
-            Panel_GameStart(ref pnlGameStart, 15, 24,30,720,450,80);
-            pnlGameStart.Visible = true;
-        }
-
-        private void btnMediumLevelEvent_Click(object sender, EventArgs e)
-        {
-            PlayButtonClickSound();
-            pnlDifficultyLevel.Visible = false;
-            Panel_GameStart(ref pnlGameStart, 12, 18,36,648,432,80);
-            pnlGameStart.Visible = true;
-        }
-
-        private void btnEasyLevelEvent_Click(object sender, EventArgs e)
-        {
-            PlayButtonClickSound();
-            pnlDifficultyLevel.Visible = false;
-            Panel_GameStart(ref pnlGameStart,8,10);
-            pnlGameStart.Visible = true;
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             backgroundMusicPlayer.PlayLooping();
@@ -463,11 +611,10 @@ namespace MineSweeper
             button.FlatAppearance.MouseOverBackColor = Color.LightSeaGreen;
         }
 
-        private void flowLayoutPanel2_Paint(object sender, PaintEventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-
+            Button button = (Button)sender;
+            button.Enabled = false;
         }
-
-
     }
 }
