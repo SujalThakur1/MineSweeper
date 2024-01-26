@@ -207,6 +207,7 @@ namespace MineSweeper
                 for (int j = 0; j < Row; j++)
                 {                    
                     btnTiles[i, j] = new Button();
+                    btnTiles[i, j].Name = ", " + i + " " + j;
                     btnTiles[i, j].Size = new Size(btnSize, btnSize);
                     btnTiles[i, j].Margin = new Padding(0);
                     btnTiles[i, j].FlatStyle = FlatStyle.Flat;
@@ -285,10 +286,26 @@ namespace MineSweeper
             pnlGameStart.Visible = true;
         }
 
+        bool IsPositionValid(int row, int col, int targetX, int targetY)
+        {
+            int minDistance = 3;
+
+            int distance = Math.Abs(row - targetX) + Math.Abs(col - targetY);
+
+            // Check if the distance is greater than or equal to the minimum distance
+            return distance >= minDistance;
+        }
+
         private void btnTileEvent_Click(object sender, EventArgs e,Button [,] btnTiles)
         {
+            Button btnTile = (Button)sender;
+
             if (firstButtonPressed)
             {
+                string naame = btnTile.Name;
+                string[] paarts = naame.Split(' ');
+                int xPosition = int.Parse(paarts[2]);
+                int yPosition = int.Parse(paarts[1]);
                 int Row = btnTiles.GetLength(1);
                 int Column = btnTiles.GetLength(0);
 
@@ -304,8 +321,8 @@ namespace MineSweeper
                     {
                         randomRow = random.Next(Row - 1);
                         randomCol = random.Next(Column - 1);
-                        btnTiles[randomCol, randomRow].Name = "0";
-                    } while (!uniquePositions.Add(new Tuple<int, int>(randomRow, randomCol)));
+                    } while (!IsPositionValid(randomRow, randomCol, xPosition, yPosition) || !uniquePositions.Add(new Tuple<int, int>(randomRow, randomCol)));
+                    btnTiles[randomCol, randomRow].Name = "0";
                 }
 
                 for (int i = 0; i < Column; i++)
@@ -332,16 +349,16 @@ namespace MineSweeper
 
                             if (boomNearBy != 0)
                             {
-                                btnTiles[i, j].Name = boomNearBy + " " + i + " " + j + " sdasdaf";
+                                btnTiles[i, j].Name = boomNearBy + " " + i + " " + j;
                             }
                             else
                             {
-                                btnTiles[i, j].Name = "Safe " + i + " " + j + " sdasd";
+                                btnTiles[i, j].Name = "Safe " + i + " " + j;
                             }
                         }
                         else
                         {
-                           btnTiles[i, j].Name += " " + i + " " + j + " sdvcxcxcv";
+                           btnTiles[i, j].Name += " " + i + " " + j;
                         }
                     }
                 }
@@ -349,7 +366,7 @@ namespace MineSweeper
             }
 
 
-            Button btnTile = (Button)sender;
+            
             btnTile.Image = Properties.Resources.BackGround;
             Bitmap bmp = new Bitmap(btnTile.Image);
             String name = btnTile.Name;
