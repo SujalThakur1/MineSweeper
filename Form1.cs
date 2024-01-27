@@ -292,7 +292,6 @@ namespace MineSweeper
 
             int distance = Math.Abs(row - targetX) + Math.Abs(col - targetY);
 
-            // Check if the distance is greater than or equal to the minimum distance
             return distance >= minDistance;
         }
 
@@ -440,14 +439,17 @@ namespace MineSweeper
 
             if(unrevealedTiles == numOfBoomTiles)
             {
+
                 pnlWin.Visible = true;
             }
         }
 
         private void ShowGameOverPanel()
         {
+
             // Show the game over panel
             pnlGameOver.Visible = true;
+
         }
 
         private void Panel_GameOver(ref Panel pnl,string text)
