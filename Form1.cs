@@ -11,12 +11,12 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using WMPLib;
 namespace MineSweeper
 {
     public partial class Form1 : Form
     {
-        private SoundPlayer backgroundMusicPlayer;
+        WindowsMediaPlayer backgroundMusicPlayer = new WindowsMediaPlayer();
         private SoundPlayer OnClickSound;
         private Panel pnlMenu = new Panel();
         private Panel pnlDifficultyLevel = new Panel();
@@ -38,8 +38,7 @@ namespace MineSweeper
             InitializeComponent();
 
             //BackGround Music
-            backgroundMusicPlayer = new SoundPlayer();
-            //backgroundMusicPlayer.SoundLocation = "BackgroundMusic.wav"; // Provide the correct path to your music file
+            backgroundMusicPlayer.URL = "BackgroundMusic.wav"; // Provide the correct path to your music file
 
             //Button Click Sound
             OnClickSound = new SoundPlayer();
@@ -721,7 +720,8 @@ namespace MineSweeper
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            backgroundMusicPlayer.PlayLooping();
+            backgroundMusicPlayer.settings.setMode("loop", true);
+            backgroundMusicPlayer.controls.play();
         }
 
         private void setLabel(Label label, int x = 110)
