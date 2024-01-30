@@ -164,8 +164,8 @@ namespace MineSweeper
             pnl.Visible = false;
         }
 
-        private void Panel_GameStart(ref Panel pnl, Button[,] btnTiles ,
-            int btnSize = 50,int BoardWidth = 500,int BoardHeight = 400,int Position = 50
+        private void Panel_GameStart(ref Panel pnl, Button[,] btnTiles,
+            int btnSize = 50, int BoardWidth = 500, int BoardHeight = 400, int Position = 50
             )
         {
             //setting panel
@@ -186,7 +186,7 @@ namespace MineSweeper
             btnBackButtonInGame.Click += new EventHandler(this.btnBackButtonInGameEvent_Click);
             setButton(btnBackButtonInGame);
             pnl.Controls.Add(btnBackButtonInGame);
-            
+
 
             //setting GameBoard
             TableLayoutPanel pnlGameBoard = new TableLayoutPanel();
@@ -204,13 +204,15 @@ namespace MineSweeper
             for (int i = 0; i < Column; i++)
             {
                 for (int j = 0; j < Row; j++)
-                {                    
+                {
                     btnTiles[i, j] = new Button();
                     btnTiles[i, j].Name = ", " + i + " " + j;
                     btnTiles[i, j].Size = new Size(btnSize, btnSize);
                     btnTiles[i, j].Margin = new Padding(0);
                     btnTiles[i, j].FlatStyle = FlatStyle.Flat;
-                    btnTiles[i, j].Image = Properties.Resources.ButtonBackGround;
+                    Image img = Properties.Resources.Tile;
+                    Bitmap resizedImage = new Bitmap(img, new Size(btnTiles[i, j].Width + 15, btnTiles[i, j].Height + 15));
+                    btnTiles[i, j].Image = resizedImage;
                     btnTiles[i, j].Click += (sender, e) => btnTileEvent_Click(sender, e, btnTiles);
                     btnTiles[i, j].MouseUp += new MouseEventHandler(btnTileEvent_MouseUp);
                     pnlGameBoard.Controls.Add(btnTiles[i, j], i, j);
@@ -229,16 +231,22 @@ namespace MineSweeper
 
         private void btnTileEvent_MouseUp(object sender, MouseEventArgs e)
         {
-            if(e.Button == MouseButtons.Right)
+            if (e.Button == MouseButtons.Right)
             {
                 Button btnTile = (Button)sender;
-                if (btnTile.Image == Properties.Resources.ButtonBackGround)
+                Image img = Properties.Resources.TileWithFlag;
+                Bitmap resizedImage = new Bitmap(img, new Size(btnTile.Width + 15, btnTile.Height + 15));
+                if (btnTile.Image.Tag == "Flag")
                 {
-                    btnTile.Image = Properties.Resources.BackButton;
+                    Image img1 = Properties.Resources.Tile;
+                    Bitmap resizedImage1 = new Bitmap(img1, new Size(btnTile.Width + 15, btnTile.Height + 15));
+                    btnTile.Image = resizedImage1;
+                    btnTile.Image.Tag = "No Flag";
                 }
                 else
                 {
-                    btnTile.Image = Properties.Resources.ButtonBackGround;
+                    btnTile.Image = resizedImage;
+                    btnTile.Image.Tag = "Flag";
                 }
             }
         }
@@ -294,152 +302,183 @@ namespace MineSweeper
             return distance >= minDistance;
         }
 
-        private void btnTileEvent_Click(object sender, EventArgs e,Button [,] btnTiles)
+        private void btnTileEvent_Click(object sender, EventArgs e, Button[,] btnTiles)
         {
             Button btnTile = (Button)sender;
-
-            if (firstButtonPressed)
+            if (btnTile.Image.Tag != "Flag")
             {
-                string naame = btnTile.Name;
-                string[] paarts = naame.Split(' ');
-                int xPosition = int.Parse(paarts[2]);
-                int yPosition = int.Parse(paarts[1]);
-                int Row = btnTiles.GetLength(1);
-                int Column = btnTiles.GetLength(0);
-
-                //unique position for boom
-                HashSet<Tuple<int, int>> uniquePositions = new HashSet<Tuple<int, int>>();
-                Random random = new Random();
-                for (int i = 0; i < numOfBoomTiles; i++)
+                if (firstButtonPressed)
                 {
-                    int randomRow, randomCol;
+                    string naame = btnTile.Name;
+                    string[] paarts = naame.Split(' ');
+                    int xPosition = int.Parse(paarts[2]);
+                    int yPosition = int.Parse(paarts[1]);
+                    int Row = btnTiles.GetLength(1);
+                    int Column = btnTiles.GetLength(0);
 
-                    // Generate unique random position
-                    do
+                    //unique position for boom
+                    HashSet<Tuple<int, int>> uniquePositions = new HashSet<Tuple<int, int>>();
+                    Random random = new Random();
+                    for (int i = 0; i < numOfBoomTiles; i++)
                     {
-                        randomRow = random.Next(Row - 1);
-                        randomCol = random.Next(Column - 1);
-                    } while (!IsPositionValid(randomRow, randomCol, xPosition, yPosition) || !uniquePositions.Add(new Tuple<int, int>(randomRow, randomCol)));
-                    btnTiles[randomCol, randomRow].Name = "0";
-                }
+                        int randomRow, randomCol;
 
-                for (int i = 0; i < Column; i++)
-                {
-                    for (int j = 0; j < Row; j++)
-                    {
-                        if (!btnTiles[i, j].Name.StartsWith("0"))
+                        // Generate unique random position
+                        do
                         {
-                            int x, y, boomNearBy = 0;
-                            for (int k = -1; k < 2; k++)
+                            randomRow = random.Next(Row - 1);
+                            randomCol = random.Next(Column - 1);
+                        } while (!IsPositionValid(randomRow, randomCol, xPosition, yPosition) || !uniquePositions.Add(new Tuple<int, int>(randomRow, randomCol)));
+                        btnTiles[randomCol, randomRow].Name = "0";
+                    }
+
+                    for (int i = 0; i < Column; i++)
+                    {
+                        for (int j = 0; j < Row; j++)
+                        {
+                            if (!btnTiles[i, j].Name.StartsWith("0"))
                             {
-                                for (int l = -1; l < 2; l++)
+                                int x, y, boomNearBy = 0;
+                                for (int k = -1; k < 2; k++)
                                 {
-                                    if (i + k < 0 || i + k > Column - 1 || j + l < 0 || j + l > Row - 1)
+                                    for (int l = -1; l < 2; l++)
                                     {
-                                        continue;
-                                    }
-                                    if (btnTiles[i + k, j + l].Name.StartsWith("0"))
-                                    {
-                                        boomNearBy++;
+                                        if (i + k < 0 || i + k > Column - 1 || j + l < 0 || j + l > Row - 1)
+                                        {
+                                            continue;
+                                        }
+                                        if (btnTiles[i + k, j + l].Name.StartsWith("0"))
+                                        {
+                                            boomNearBy++;
+                                        }
                                     }
                                 }
-                            }
 
-                            if (boomNearBy != 0)
-                            {
-                                btnTiles[i, j].Name = boomNearBy + " " + i + " " + j;
+                                if (boomNearBy != 0)
+                                {
+                                    btnTiles[i, j].Name = boomNearBy + " " + i + " " + j;
+                                }
+                                else
+                                {
+                                    btnTiles[i, j].Name = "Safe " + i + " " + j;
+                                }
                             }
                             else
                             {
-                                btnTiles[i, j].Name = "Safe " + i + " " + j;
+                                btnTiles[i, j].Name += " " + i + " " + j;
                             }
                         }
-                        else
-                        {
-                           btnTiles[i, j].Name += " " + i + " " + j;
-                        }
                     }
-                }
-                firstButtonPressed = false;
-            }
-
-
-            
-            btnTile.Image = Properties.Resources.BackGround;
-            Bitmap bmp = new Bitmap(btnTile.Image);
-            String name = btnTile.Name;
-            String[] parts = name.Split(' ');
-            if (parts[0] == "0")
-            {
-                ShowGameOverPanel();
-            }
-            int col = int.Parse(parts[1]);
-            int row = int.Parse(parts[2]);
-
-            
-
-            // Recursive method to reveal safe tiles
-            void RevealSafeTiles(int c, int r)
-            {
-                // Base case: check bounds
-                if (c < 0 || c >= btnTiles.GetLength(0) || r < 0 || r >= btnTiles.GetLength(1))
-                {
-                    return;
+                    firstButtonPressed = false;
                 }
 
-                if (!btnTiles[c, r].Enabled)
+                String name = btnTile.Name;
+                String[] parts = name.Split(' ');
+                if (parts[0] == "0")
                 {
-                    return;
+                    ShowGameOverPanel();
                 }
+                int col = int.Parse(parts[1]);
+                int row = int.Parse(parts[2]);
 
-                btnTiles[c, r].Image = Properties.Resources.BackGround;
-                Bitmap bm = new Bitmap(btnTiles[c, r].Image);
-                // Create a graphics object from the bitmap
-                using (Graphics g = Graphics.FromImage(bm))
+
+                // Recursive method to reveal safe tiles
+                void RevealSafeTiles(int c, int r)
                 {
-                    // Set font and brush for the text
-                    Font font = new Font("Arial", 15, FontStyle.Bold);
-                    Brush brush = Brushes.Black;
-                    float x = (bm.Width - g.MeasureString("1", font).Width) / 2;
-                    float y = (bm.Height - g.MeasureString("1", font).Height) / 2;
+                    // Base case: check bounds
+                    if (c < 0 || c >= btnTiles.GetLength(0) || r < 0 || r >= btnTiles.GetLength(1))
+                    {
+                        return;
+                    }
+
+                    if (btnTiles[c, r].Tag == "Used")
+                    {
+                        return;
+                    }
                     string naame = btnTiles[c, r].Name;
-                    string []naaame = naame.Split(' ');
+                    string[] naaame = naame.Split(' ');
+                    Image Image;
                     if (naaame[0] == "Safe")
                     {
-                        naaame[0] = " ";
+                        Image = Properties.Resources.RemovedTile;
                     }
-
-                    g.DrawString(naaame[0], font, brush, new PointF(x, y));
-                }
-                btnTiles[c, r].Image = bm;
-                btnTiles[c, r].Enabled = false;
-                unrevealedTiles--;
-                if (parts[0] == "Safe")
-                {
-                    // Recursive call for neighboring tiles
-                    for (int i = -1; i < 2; i++)
+                    else if (naaame[0] == "1")
                     {
-                        for (int j = -1; j < 2; j++)
+                        Image = Properties.Resources.RemovedTile1;
+                    }
+                    else if (naaame[0] == "2")
+                    {
+                        Image = Properties.Resources.RemovedTile2;
+                    }
+                    else if (naaame[0] == "3")
+                    {
+                        Image = Properties.Resources.RemovedTile3;
+                    }
+                    else if (naaame[0] == "4")
+                    {
+                        Image = Properties.Resources.RemovedTile4;
+                    }
+                    else if (naaame[0] == "5")
+                    {
+                        Image = Properties.Resources.RemovedTile5;
+                    }
+                    else if (naaame[0] == "6")
+                    {
+                        Image = Properties.Resources.RemovedTile6;
+                    }
+                    else if (naaame[0] == "7")
+                    {
+                        Image = Properties.Resources.RemovedTile7;
+                    }
+                    else if (naaame[0] == "8")
+                    {
+                        Image = Properties.Resources.RemovedTile8;
+                    }
+                    else
+                    {
+                        Image = Properties.Resources.RemovedTileBoom;
+                    }
+                    Bitmap resizedImagee = new Bitmap(Image, new Size(btnTiles[c, r].Width + 50, btnTiles[c, r].Height + 10));
+                    btnTiles[c, r].Image = resizedImagee;
+
+
+                    btnTiles[c, r].Tag = "Used";
+                    //btnTiles[c, r].Enabled = false;
+                    unrevealedTiles--;
+                    if (parts[0] == "Safe")
+                    {
+                        // Recursive call for neighboring tiles
+                        for (int i = -1; i < 2; i++)
                         {
-                            string n = btnTiles[c, r].Name;
-                            string[] p = n.Split(' ');
-                            if (p[0].Contains("Safe"))
+                            for (int j = -1; j < 2; j++)
                             {
-                                RevealSafeTiles(c + i, r + j);
+                                string n = btnTiles[c, r].Name;
+                                string[] p = n.Split(' ');
+                                if (p[0].Contains("Safe"))
+                                {
+                                    RevealSafeTiles(c + i, r + j);
+                                }
                             }
                         }
                     }
+
+
                 }
-                
 
+                RevealSafeTiles(col, row);
+
+                if (unrevealedTiles == numOfBoomTiles)
+                {
+
+                    pnlWin.Visible = true;
+                }
             }
-
-            RevealSafeTiles(col, row);
-
-            if(unrevealedTiles == numOfBoomTiles)
+            else
             {
-
-                pnlWin.Visible = true;
+                Image img1 = Properties.Resources.Tile;
+                Bitmap resizedImage1 = new Bitmap(img1, new Size(btnTile.Width + 15, btnTile.Height + 15));
+                btnTile.Image = resizedImage1;
+                btnTile.Image.Tag = "No Flag";
             }
         }
 
