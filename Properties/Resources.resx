@@ -121,6 +121,9 @@
   <data name="Flag" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Images\Flag.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Clock" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Clock.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="RemovedTile5" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Images\RemovedTile5.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -132,6 +135,9 @@
   </data>
   <data name="RemovedTile" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Images\RemovedTile.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="RemovedTileBoom" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Images\RemovedTileBoom.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="BackButton" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Images\BackButton.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -169,7 +175,10 @@
   <data name="RemovedTile2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Images\RemovedTile2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="RemovedTileBoom" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Images\RemovedTileBoom.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Unmute" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Unmute1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Mute" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Mute1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

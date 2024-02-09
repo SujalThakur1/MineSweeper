@@ -93,6 +93,10 @@
     <Content Include="BackGround.jpg" />
     <Content Include="BackgroundMusic.mp3" />
     <Content Include="ButtonBackGround.png" />
+    <None Include="Resources\Mute1.png" />
+    <None Include="Resources\Unmute1.png" />
+    <None Include="Resources\Mute.png" />
+    <None Include="Resources\Unmute.png" />
     <None Include="Resources\Image1.bmp" />
     <None Include="Resources\PlayAgain1.png" />
     <None Include="Resources\GoHome1.png" />
@@ -110,6 +114,7 @@
     <None Include="Images\RemovedTile7.png" />
     <None Include="Images\RemovedTile8.png" />
     <None Include="Images\RemovedTileBoom.png" />
+    <None Include="Resources\Clock.png" />
     <Content Include="Resources\GoHome.png" />
     <None Include="Images\BackButton.png" />
     <None Include="Images\BackGround.jpg" />
